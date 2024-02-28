@@ -2,6 +2,9 @@ package com.anshu.allinonemusicplayer.Activity.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +57,15 @@ public class MusicFileAdapter extends RecyclerView.Adapter<MusicFileAdapter.Audi
             }
         });
 
+        // Fetch album art
+        Bitmap albumArt = getAlbumArt(path);
+        if (albumArt != null) {
+            holder.iv_album.setImageBitmap(albumArt);
+        } else {
+            // Set a default image if no album art found
+            holder.iv_album.setImageResource(R.drawable.music_icon);
+        }
+
     }
 
     @Override
@@ -75,6 +87,17 @@ public class MusicFileAdapter extends RecyclerView.Adapter<MusicFileAdapter.Audi
             cardView = itemView.findViewById(R.id.card_view);
             iv_album = itemView.findViewById(R.id.iv_album);
 
+        }
+    }
+    public static Bitmap getAlbumArt(String audioFilePath) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(audioFilePath);
+
+        byte[] albumArt = retriever.getEmbeddedPicture();
+        if (albumArt != null) {
+            return BitmapFactory.decodeByteArray(albumArt, 0, albumArt.length);
+        } else {
+            return null;
         }
     }
 }

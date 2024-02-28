@@ -6,6 +6,8 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -124,54 +126,6 @@ public class MusicPlayActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
 
-//        play.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                play.setVisibility(View.GONE);
-//                pause.setVisibility(View.VISIBLE);
-//                mediaPlayer.start();
-//                seekBar.setMax(mediaPlayer.getDuration());
-//                handler.postDelayed(runnable,0);
-//            }
-//        });
-
-//        pause.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                pause.setVisibility(View.GONE);
-//                play.setVisibility(View.VISIBLE);
-//                mediaPlayer.pause();
-//                handler.removeCallbacks(runnable);
-//            }
-//        });
-
-//        forward.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                int currentPos = mediaPlayer.getCurrentPosition();
-//                int duration = mediaPlayer.getDuration();
-//                if (mediaPlayer.isPlaying() && duration != currentPos);
-//                currentPos = currentPos +5000;
-//                playerpos.setText(convertFormat(currentPos));
-//                mediaPlayer.seekTo(currentPos);
-//
-//            }
-//        });
-
-//        rewind.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                int currentPos = mediaPlayer.getCurrentPosition();
-//
-//                if (mediaPlayer.isPlaying() && currentPos > 5000){
-//                    currentPos = currentPos -5000;
-////                    playerpos.setText(convertFormat(currentPos));
-//                    mediaPlayer.seekTo(currentPos);
-//                }
-//
-//            }
-//        });
-
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -197,6 +151,16 @@ public class MusicPlayActivity extends AppCompatActivity {
                 mediaPlayer.seekTo(0);
             }
         });
+
+        // Fetch album art
+        Bitmap albumArt = getAlbumArt(Audio_Path);
+        if (albumArt != null) {
+            binding.imgLogo.setImageBitmap(albumArt);
+        } else {
+            // Set a default image if no album art found
+           binding.imgLogo.setImageResource(R.drawable.music_icon);
+        }
+
 
     }
 
@@ -302,6 +266,16 @@ public class MusicPlayActivity extends AppCompatActivity {
         else time = String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
         return time;
     }
+    public static Bitmap getAlbumArt(String audioFilePath) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(audioFilePath);
 
+        byte[] albumArt = retriever.getEmbeddedPicture();
+        if (albumArt != null) {
+            return BitmapFactory.decodeByteArray(albumArt, 0, albumArt.length);
+        } else {
+            return null;
+        }
+    }
 
 }
